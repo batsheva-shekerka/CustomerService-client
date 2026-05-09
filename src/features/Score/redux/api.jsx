@@ -44,7 +44,13 @@ export const scoreApi = createApi({
       }),
       invalidatesTags: ['Score'], // מרענן את הרשימה אחרי עדכון
     }),
+// 5. גרף ציון חודשי
+MonthlyScoreGraf: builder.query({
+  query: (id) => `GetAllMonthScore/${id}`, // הוספת לוכסן להפרדה
+  providesTags: ['Score'], // ב-Query משתמשים ב-providesTags (ולא invalidates)
+}),
 
+    
     // // 5.שליפת ציון לפי שיחה
     // getOperatorCalls: builder.query({
     //   query: (id) => `${id}`,
@@ -59,5 +65,6 @@ export const {
   useAddScoreMutation, 
   useDeleteScoreMutation, 
   useUpdateScoreMutation, 
+  useMonthlyScoreGrafQuery
 //   useGetOperatorCallsQuery 
 } = scoreApi;

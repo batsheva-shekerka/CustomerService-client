@@ -15,7 +15,7 @@ const userState = useSelector((state) => state.auth);
         <h2>מחובר למערכת</h2>
         
         {/* תפריט ניווט פשוט כדי שתוכלי לעבור בין העמודים */}
-        <nav style={{ marginBottom: '20px' }}>
+        {/* <nav style={{ marginBottom: '20px' }}>
           <Link to="/login" style={{ marginLeft: '10px' }}>התחברות</Link>
           <Link to="/login" style={{ marginLeft: '10px' }}>התנתקות</Link>
           <Link to="/calls" style={{ marginLeft: '10px' }}>שיחות</Link>
@@ -23,7 +23,7 @@ const userState = useSelector((state) => state.auth);
           <Link to="/calls" style={{ marginLeft: '10px' }}>גרף חודשי</Link>
         </nav>
 
-        <hr />
+        <hr /> */}
         
         <CallsList readOnly={true} operatorId={currentOperatorId} />
        

@@ -8,7 +8,8 @@ import companyReducer from '../features/company/redux/companySlice';
 import { companyApi } from '../features/company/redux/api';
 import callReducer from '../features/Calls/redux/callSlice';
 import { callApi } from '../features/Calls/redux/api';
-
+import { scoreApi } from '../features/Score/redux/api';
+import scoreReducer from '../features/Score/redux/scoreSlice'
 
 export const store = configureStore({
   reducer: {
@@ -17,12 +18,14 @@ export const store = configureStore({
     auth: authReducer, 
     companies: companyReducer,
     calls:callReducer,
+    scores:scoreReducer,
     
     // החיבור של ה-API (חשוב מאוד!)
     [authApi.reducerPath]: authApi.reducer,
     [operatorApi.reducerPath]: operatorApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
     [callApi.reducerPath]: callApi.reducer,
+    [scoreApi.reducerPath]: scoreApi.reducer,
 
   },
   middleware: (getDefaultMiddleware) =>
@@ -30,6 +33,7 @@ export const store = configureStore({
   .concat(authApi.middleware)
   .concat(operatorApi.middleware)
   .concat(companyApi.middleware)
-  .concat(callApi.middleware),
+  .concat(callApi.middleware)
+  .concat(scoreApi.middleware),
 
 });
