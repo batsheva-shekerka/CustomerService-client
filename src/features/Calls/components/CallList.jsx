@@ -81,6 +81,8 @@ const list = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
     </Alert>
   );
 console.log("סוג הרשימה:", typeof list, "האם מערך?", Array.isArray(list), "תוכן:", list);
+
+
   return (
     <div style={{ padding: '20px' }} dir="rtl">
       <Button variant="contained" onClick={handleAddNewClick} sx={{ mb: 2 }}>

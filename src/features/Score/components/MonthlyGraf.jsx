@@ -1,149 +1,116 @@
-import React, { useState } from 'react';
-import { Button, CircularProgress, Alert, Box } from '@mui/material';
-import { useMonthlyScoreGrafQuery, useDeleteScoreMutation} from '../redux/api';
-import AddScore from '../../Score/components/AddScore';
+import React from 'react';
+import { CircularProgress, Alert, Box, Typography, Paper } from '@mui/material';
+import { useMonthlyScoreGrafQuery } from '../redux/api';
+import { useSelector } from 'react-redux';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const MonthlyGraf = ({ readOnly = false, operatorId = null })=>{
-// 1. קריאה לכל השיחות - תתבצע רק אם אנחנו לא במצב readOnly
+const MonthlyGraf = () => {
+  const currentId = useSelector((state) => state.auth?.operator?.operatorId);
+
   const { 
-    data: allCalls = [], 
-    isLoading: isLoadingAll, 
-    isError: isErrorAll, 
-    error: errorAll 
-  } = useMonthlyScoreGrafQuery(undefined, { skip: readOnly });
+    data: rawData = [], 
+    isLoading, 
+    isError, 
+    error 
+  } = useMonthlyScoreGrafQuery(currentId, { skip: !currentId });
 
-  // 2. קריאה לשיחות של מפעיל ספציפי - תתבצע רק אם אנחנו ב-readOnly ויש operatorId
-  const { 
-    data: operatorCalls = [], 
-    isLoading: isLoadingOp, 
-    isError: isErrorOp, 
-    error: errorOp 
-  } = useMonthlyScoreGrafQuery(operatorId, { skip: !readOnly || !operatorId });
+  const list = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
 
+  if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
+  if (isError) return <Alert severity="error" sx={{ mt: 2 }}>שגיאה: {error?.status}</Alert>;
 
-  // מבטיח ש-list תמיד יהיה מערך, גם אם הגיע אובייקט בודד מה-API
-const rawData = readOnly ? operatorCalls : allCalls;
-const list = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
-  // בחירת הנתונים והמצבים הרלוונטיים בהתאם לסטטוס
-  // const list = (readOnly ? operatorCalls : allCalls) || [];
-  const isLoading = readOnly ? isLoadingOp : isLoadingAll;
-  const isError = readOnly ? isErrorOp : isErrorAll;
-  const error = readOnly ? errorOp : errorAll;
-  
-  // 2. פונקציית מחיקה (מוודא שהגדרת deleteCompany ב-companyApi)
-  const [deleteCall] = useDeleteScoreMutation();
-  const [IsToShowOnly, setIsToShowOnly] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCall, setSelectedCall] = useState(null);
-   const showScore=(call)=>{
-    setSelectedCall(call);
-    setIsDialogOpen(true);
-    setIsToShowOnly(ture);
-   }
-  const handleEditClick = (call) => {
-    setSelectedCall(call);
-    setIsDialogOpen(true);
-  };
+  return (
+    <Box sx={{ padding: '20px', backgroundColor: '#f5f5f5', minHeight: '100vh' }} dir="rtl">
+      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#1a237e' }}>
+        מרכז ביצועים אישי
+      </Typography>
 
-  const handleAddNewClick = () => {
-    setSelectedCall(null);
-    setIsDialogOpen(true);
-  };
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 4, backgroundColor: '#ffffff' }}>
+        <Typography variant="h6" sx={{ mb: 3, textAlign: 'right' }}>
+          מגמת שיפור בפרמטרים (לפי מספר שיחה)
+        </Typography>
+        
+        {/* הגדרת גובה קשיח ל-Box כדי ש-ResponsiveContainer יעבוד */}
+        <Box sx={{ width: '100%', height: 400 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={list} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+              
+              {/* כרגע משתמשים ב-scoreId כי אין date ב-DTO. 
+                  ברגע שתוסיפי date ב-C#, תשני חזרה ל-dataKey="date" */}
+              <XAxis dataKey="scoreId" label={{ value: 'מספר שיחה', position: 'insideBottom', offset: -5 }} />
+              
+              <YAxis domain={[0, 100]} />
+              <Tooltip backgroundColor="#fff" />
+              <Legend verticalAlign="top" height={36}/>
 
-  const handleDelete = async (id) => {
-    if (window.confirm("האם הינך בטוח שברצונך למחוק חברה זו?")) {
-      try {
-        await deleteCall(id).unwrap();
-        // בזכות ה-Tags ב-API, הרשימה תתעדכן לבד!
-      } catch (err) {
-        console.error("Failed to delete call:", err);
-      }
-    }
-  };
+              <Line 
+                name="טון" 
+                type="monotone" 
+                dataKey="operatorToneScore" // שם מדויק מה-DTO
+                stroke="#8884d8" 
+                strokeWidth={3} 
+                dot={{ r: 4 }} 
+              />
+              <Line 
+                name="קונפליקטים" 
+                type="monotone" 
+                dataKey="conflictResolutionScore" // שם מדויק מה-DTO
+                stroke="#82ca9d" 
+                strokeWidth={3} 
+                dot={{ r: 4 }} 
+              />
+              <Line 
+                name="מקצועיות" 
+                type="monotone" 
+                dataKey="professionalismScore" // שם מדויק מה-DTO
+                stroke="#ffc658" 
+                strokeWidth={3} 
+                dot={{ r: 4 }} 
+              />
+            </LineChart>
+          </ResponsiveContainer>
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-  };
+         
+        </Box>
+         <Typography variant="h6" sx={{ mb: 3, textAlign: 'right' }}>
+מגמת שיפור חודשי לפי ממוצע        </Typography>
+        <Box>
+           <ResponsiveContainer width="100%" aspect={2.5}>
+  <LineChart data={list}>
+    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+    
+    {/* ציר X מציג עכשיו את שם החודש */}
+    <XAxis dataKey="month" tick={{fill: '#666'}} /> 
+    
+    <YAxis domain={[0, 100]} />
+    <Tooltip />
+    <Legend verticalAlign="top" />
 
-  // הצגת מצבי טעינה ושגיאה
-  if (isLoading) return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
-      <CircularProgress />
+    {/* קו המציג את הממוצע הכללי */}
+    <Line 
+      name="ממוצע כללי" 
+      type="monotone" 
+      dataKey="avgOverall" 
+      stroke="#6366f1" 
+      strokeWidth={4} 
+      dot={{ r: 6 }} 
+    />
+    
+    {/* קו המציג שיפור בטון */}
+    <Line 
+      name="שיפור בטון" 
+      type="monotone" 
+      dataKey="avgTone" 
+      stroke="#8884d8" 
+      strokeDasharray="5 5" // קו מקווקו לפרמטרים משניים
+    />
+  </LineChart>
+</ResponsiveContainer>
+        </Box>
+      </Paper>
     </Box>
   );
-  
-  if (isError) return (
-    <Alert severity="error" sx={{ mt: 2 }}>
-      שגיאה בטעינת חברות: {error?.data?.title || error?.error || "שגיאה לא ידועה"}
-    </Alert>
-  );
-console.log("סוג הרשימה:", typeof list, "האם מערך?", Array.isArray(list), "תוכן:", list);
-  return (
-    <div style={{ padding: '20px' }} dir="rtl">
-      <Button variant="contained" onClick={handleAddNewClick} sx={{ mb: 2 }}>
-        הוספת שיחה חדשה
-      </Button>
-      
-      <h2>רשימת ציונים</h2>
-      
-      <table border="1" style={{ width: '100%', textAlign: 'right', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ backgroundColor: '#f2f2f2' }}>
-            <th>ID שיחה</th>
-            <th>ID ציון</th>
-            <th>ציון אינטואיציה </th>
-            <th>ציון פתירת קונליקט </th>
-            <th>ציון מקצועיות  </th>
-            <th> ציון סופי </th>
-            <th>טפים לייעול</th>
-            {!readOnly && <th>פעולות</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {list?.map((call, index) => {
-            console.log(call)
-            const CallId = call.callId;
-            const ScoreId = call.scoreId;
-            const OperatorToneScore=call.operatorToneScore;
-            const ConflictResolutionScore =call.conflictResolutionScore;
-            const ProfessionalismScore=call.professionalismScore;
-            const OverallScore=call.overallScore
-            const ImprovementTips=call.improvementTips;           
+};
 
-
-            return (
-              <tr key={CallId || index}>
-                <td>{ScoreId}</td>
-                <td>{OperatorToneScore}</td>
-                <td>{ConflictResolutionScore}</td>
-                <td>{ProfessionalismScore}</td>
-                <td>{OverallScore}</td>
-                <td>{ImprovementTips}</td>               
-                {!readOnly&&  
-                <td >
-                  <Button color="primary" onClick={() => handleEditClick(call)}>ערוך</Button>
-                  <Button 
-                    onClick={() => handleDelete(CallId)}
-                    sx={{ color: 'white', bgcolor: '#ff4d4d', '&:hover': { bgcolor: '#cc0000' }, ml: 1 }}
-                  >
-                    מחק
-                  </Button>
-                </td>}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      
-     <AddScore 
-        open={isDialogOpen} 
-        handleClose={handleCloseDialog} 
-        callToEdit={selectedCall}
-
-      />
-      {list.length === 0 && <p style={{ marginTop: '20px' }}>אין שיחות להצגה.</p>}
-    </div>
-  );
-
-
-};export default MonthlyGraf;
+export default MonthlyGraf;

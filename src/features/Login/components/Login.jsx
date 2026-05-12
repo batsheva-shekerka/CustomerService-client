@@ -22,7 +22,7 @@ const Login = () => {
     try {
       // 1. קריאה לשרת
       const result = await login(data).unwrap();
-      
+      console.log("result of login",result)
       if (result.token) {
         // 2. שמירה ב-Redux (וב-LocalStorage ליתר ביטחון עבור ה-ProtectedRoute)
         dispatch(setCredentials({ operator: result.user, token: result.token }));
@@ -33,6 +33,7 @@ const Login = () => {
         const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || decoded.role;
 
         console.log("משתמש התחבר עם תפקיד:", role);
+        localStorage.setItem("user", result.user);
 
         // 4. ניתוב לפי התפקיד
         switch(role) {

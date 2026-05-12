@@ -46,11 +46,16 @@ export const scoreApi = createApi({
     }),
 // 5. גרף ציון חודשי
 MonthlyScoreGraf: builder.query({
-  query: (id) => `GetAllMonthScore/${id}`, // הוספת לוכסן להפרדה
-  providesTags: ['Score'], // ב-Query משתמשים ב-providesTags (ולא invalidates)
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `../operator/GetAllMonthScore/${id}`, 
+  providesTags: ['Score'],
 }),
 
-    
+   MonthlyImprovement: builder.query({
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `../operator/GetMonthlyImprovement/${id}`, 
+  providesTags: ['Score'],
+}), 
     // // 5.שליפת ציון לפי שיחה
     // getOperatorCalls: builder.query({
     //   query: (id) => `${id}`,
@@ -65,6 +70,7 @@ export const {
   useAddScoreMutation, 
   useDeleteScoreMutation, 
   useUpdateScoreMutation, 
-  useMonthlyScoreGrafQuery
+  useMonthlyScoreGrafQuery,
+  useMonthlyImprovementQuery
 //   useGetOperatorCallsQuery 
 } = scoreApi;
