@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import './App.css'
+import './index.css'
 import MainLayout from './app/MainLayout'
 // ייבוא הקומפוננטות שלך
 import OperatorsList from './features/Operator/components/OperatorList'
@@ -12,11 +12,12 @@ import PersonalArea from './features/Operator/components/PersonalArea'
 import ManagerArea from './features/Operator/components/ManagerArea'
 import SystemManagerArea from './features/Operator/components/SystemManagerArea'
 import MonthlyGraf from './features/Score/components/MonthlyGraf'
+import AgentDashboard from './AgentDashboard'
 
 function App() {
   return (
     <Router>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', direction: 'rtl' }}>
+    <div className="min-h-screen bg-slate-50">
         <h1>מערכת ניהול שירות לקוחות</h1>
         
         <nav style={{ marginBottom: '20px' }}>
@@ -37,6 +38,7 @@ function App() {
           <Route path="/systemmanagerarea" element={<SystemManagerArea />} />
           <Route path="/add-operator" element={<AddOperator />} />
           <Route path="/monthlygraf" element={<MonthlyGraf />} />
+          <Route path="/calls" element={<AgentDashboard/>} />
           </Route>
         </Routes>
       </div>
