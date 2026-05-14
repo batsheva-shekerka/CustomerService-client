@@ -44,6 +44,16 @@ export const companyApi = createApi({
       }),
       invalidatesTags: ['Company'], // מרענן את הרשימה אחרי עדכון
     }),
+   GetDailyImprovement: builder.query({
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `../Call/GetDailyImprovement/${id}`, 
+  providesTags: ['Company'],
+}), 
+ GetWeeklyImprovement: builder.query({
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `./GetWeeklyImprovement/${id}`, 
+  providesTags: ['Company'],
+}), 
 
     // // 5. שליפת שיחות של מפעיל (שימי לב - זה Query)
     // getOperatorCalls: builder.query({
@@ -59,5 +69,7 @@ export const {
   useAddCompanyMutation, 
   useDeleteCompanyMutation, 
   useUpdateCompanyMutation, 
-  useGetCompanyCallsQuery 
+  useGetCompanyCallsQuery,
+  useGetDailyImprovementQuery,
+  useGetWeeklyImprovementQuery
 } = companyApi;

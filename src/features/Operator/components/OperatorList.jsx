@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
-import { Button, CircularProgress, Alert,Box } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { 
+  Button, CircularProgress, Alert, Box, 
+  Table, TableBody, TableCell, TableContainer, 
+  TableHead, TableRow, Paper, Typography,
+  FormControl, InputLabel, Select, MenuItem
+} from '@mui/material';
 import AddOperator from './AddOperator';
-// ייבוא ה-Hooks החדשים
-import { useGetAllOperatorsQuery, useDeleteOperatorMutation } from '../redux/api';
+import OperatorRow from './OperatorRow';
+import { 
+  useGetAllOperatorsQuery, 
+  useDeleteOperatorMutation, 
+  // useGetAllCompaniesQuery // ייבוא רשימת החברות עבור הפילטר
+} from '../redux/api';
+import { useGetAllCompaniesQuery } from '../../company/redux/api';
 
 const OperatorsList = () => {
-  // 1. שליפת נתונים אוטומטית מהשרת
-  // ה-Hook הזה מחליף את ה-useEffect ואת ה-useSelector של ה-list
+  // שליפת נתונים
   const { data: list = [], isLoading, isError, error } = useGetAllOperatorsQuery();
-
-  // 2. פונקציית מחיקה
+  const { data: companies = [] } = useGetAllCompaniesQuery();
   const [deleteOperator] = useDeleteOperatorMutation();
+
+  // State עבור הפילטר
+  const [selectedCompanyId, setSelectedCompanyId] = useState('all');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState(null);
+
+  // לוגיקת סינון: נבצע את הסינון רק כשהרשימה או הפילטר משתנים
+  const filteredList = useMemo(() => {
+    if (selectedCompanyId === 'all') return list;
+    return list.filter(op => (op.companyId || op.CompanyId) === selectedCompanyId);
+  }, [list, selectedCompanyId]);
 
   const handleEditClick = (operator) => {
     setSelectedOperator(operator);
@@ -25,80 +42,85 @@ const OperatorsList = () => {
     setIsDialogOpen(true);
   };
 
- const handleDelete = async (operator) => {
-  // חילוץ בטוח של ה-ID
-  const id = operator.operatorId || operator.OperatorId;
-  
-  if (window.confirm("האם הינך בטוח?")) {
-    try {
-      await deleteOperator(id).unwrap();
-    } catch (err) {
-      console.error("Delete failed:", err);
+  const handleDelete = async (operator) => {
+    const id = operator.operatorId || operator.OperatorId;
+    if (window.confirm("האם הינך בטוח?")) {
+      try {
+        await deleteOperator(id).unwrap();
+      } catch (err) {
+        console.error("Delete failed:", err);
+      }
     }
-  }
-};
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
   };
 
-  // הצגת מצבי טעינה ושגיאה בצורה יפה של MUI
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
   if (isError) return <Alert severity="error">שגיאה בטעינת נתונים: {error?.message || 'שגיאה לא ידועה'}</Alert>;
 
   return (
-    <div style={{ padding: '20px' }} dir="rtl">
-      <Button variant="contained" onClick={handleAddNewClick} sx={{ mb: 2 }}>
-        הוספת טלפנית חדשה
-      </Button>
-      
-      <h2>רשימת טלפניות</h2>
-      
-      <table border="1" style={{ width: '100%', textAlign: 'right', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ backgroundColor: '#f2f2f2' }}>
-            <th>טלפון</th>
-            <th>שם</th>
-            <th>אימייל</th>
-            <th>פעולות</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((op, index) => {
-            const id = op.operatorId || op.OperatorId;
-            const firstName = op.firstName || op.FirstName || "";
-            const lastName = op.lastName || op.LastName || "";
-            const phone = op.phone || op.Phone || "";
-            const mail = op.mail || op.Mail || "";
+    <Box sx={{ padding: '20px' }} dir="rtl">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a237e' }}>רשימת טלפניות</Typography>
+        <Button variant="contained" onClick={handleAddNewClick}>
+          הוספת טלפנית חדשה
+        </Button>
+      </Box>
 
-            return (
-              <tr key={id || index}>
-                <td>{phone}</td>
-                <td>{firstName} {lastName}</td>
-                <td>{mail}</td>
-                <td>
-                  <Button color="primary" onClick={() => handleEditClick(op)}>ערוך</Button>
-                  <Button 
-                    onClick={() => handleDelete(op)}
-                    sx={{ color: 'white', bgcolor: '#ff4d4d', '&:hover': { bgcolor: '#cc0000' }, ml: 1 }}
-                  >
-                    מחק
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {/* אזור הפילטרים */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel id="company-filter-label">סנן לפי חברה</InputLabel>
+          <Select
+            labelId="company-filter-label"
+            value={selectedCompanyId}
+            label="סנן לפי חברה"
+            onChange={(e) => setSelectedCompanyId(e.target.value)}
+          >
+            <MenuItem value="all">כל הטלפניות</MenuItem>
+            {companies.map((company) => (
+              <MenuItem key={company.companyId || company.CompanyId} value={company.companyId || company.CompanyId}>
+                {company.companyName || company.CompanyName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+      
+      <TableContainer component={Paper} sx={{ borderRadius: '15px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+              <TableCell />
+              <TableCell align="right">טלפון</TableCell>
+              <TableCell align="right">שם</TableCell>
+              <TableCell align="right">אימייל</TableCell>
+              <TableCell align="right">פעולות</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredList.map((op, index) => (
+              <OperatorRow 
+                key={op.operatorId || op.OperatorId || index} 
+                op={op} 
+                onEdit={handleEditClick} 
+                onDelete={handleDelete} 
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <AddOperator 
         open={isDialogOpen} 
-        handleClose={handleCloseDialog} 
+        handleClose={() => setIsDialogOpen(false)} 
         operatorToEdit={selectedOperator}
       />
 
-      {list.length === 0 && <p style={{ marginTop: '20px' }}>אין טלפניות להצגה.</p>}
-    </div>
+      {filteredList.length === 0 && (
+        <Typography sx={{ mt: 3, textAlign: 'center', color: 'text.secondary' }}>
+          לא נמצאו טלפניות העונות לסינון שנבחר.
+        </Typography>
+      )}
+    </Box>
   );
 };
 

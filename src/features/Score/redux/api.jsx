@@ -56,6 +56,22 @@ MonthlyScoreGraf: builder.query({
   query: (id) => `../operator/GetMonthlyImprovement/${id}`, 
   providesTags: ['Score'],
 }), 
+
+ DaylyScore: builder.query({
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `../operator/GetAverageDayScore/${id}`, 
+  providesTags: ['Score'],
+}),
+ weeklyScore: builder.query({
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `../operator/GetAverageDayScore/${id}`, 
+  providesTags: ['Score'],
+}), 
+Daylyimprovetips: builder.query({
+  // יוצאים מ-score ונכנסים ל-operator
+  query: (id) => `../operator/GetWeeklyImprovement/${id}`, 
+  providesTags: ['Score'],
+}), 
     // // 5.שליפת ציון לפי שיחה
     // getOperatorCalls: builder.query({
     //   query: (id) => `${id}`,
@@ -71,6 +87,9 @@ export const {
   useDeleteScoreMutation, 
   useUpdateScoreMutation, 
   useMonthlyScoreGrafQuery,
-  useMonthlyImprovementQuery
+  useMonthlyImprovementQuery,
+  useDaylyScoreQuery,
+  useDaylyimprovetipsQuery,
+  useWeeklyScoreQuery
 //   useGetOperatorCallsQuery 
 } = scoreApi;

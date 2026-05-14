@@ -12,7 +12,8 @@ import PersonalArea from './features/Operator/components/PersonalArea'
 import ManagerArea from './features/Operator/components/ManagerArea'
 import SystemManagerArea from './features/Operator/components/SystemManagerArea'
 import MonthlyGraf from './features/Score/components/MonthlyGraf'
-import AgentDashboard from './AgentDashboard'
+import AgentDashboard from './features/Score/components/AgentDashboard'
+import ManagerDashboard from './features/Operator/components/ManagerDashboard'
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/add-operator" element={<AddOperator />} />
           <Route path="/monthlygraf" element={<MonthlyGraf />} />
           <Route path="/calls" element={<AgentDashboard/>} />
+          <Route path="/ManagerDashboard" element={<ManagerDashboard/>} />
           </Route>
         </Routes>
       </div>

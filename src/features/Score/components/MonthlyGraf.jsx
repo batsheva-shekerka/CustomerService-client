@@ -6,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const MonthlyGraf = () => {
   const currentId = useSelector((state) => state.auth?.operator?.operatorId);
-
+  console.log("monthlygraf currentid",currentId)
   const { 
     data: rawData = [], 
     isLoading, 
