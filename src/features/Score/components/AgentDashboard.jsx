@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
-import { Award, Clock, Smile, MessageSquare, Calendar } from 'lucide-react';
+import { Award, Clock, Smile, MessageSquare, Calendar,Phone,Percent } from 'lucide-react';
 // ייבוא רכיבי Material UI שהיו חסרים בקוד המקור
 import { Box, CircularProgress, Alert } from '@mui/material'; 
 import './AgentDashboard.css';
@@ -82,6 +82,7 @@ const performanceData = React.useMemo(() => {
 
     // הוסיפי כאן את כל ערכי ה-Enum שלך
 };
+   console.log("num of calls",latestStats?.sumDailyCalls)
   return (
     <div className="dashboard-page" dir="rtl">
       <div className="container-center">
@@ -99,8 +100,16 @@ const performanceData = React.useMemo(() => {
         </div>
 
         {/* Stats Grid */}
-        <div className="stats-grid">
+{/* Stats Grid - שונה ל-5 כרטיסים */}
+        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          {/* כרטיס חדש: מספר שיחות יומיות */}
           <StatCard 
+            title="שיחות היו היום" 
+            value={latestStats?.sumDailyCalls || "0"} // שים לב: שנה את dailyCallsCount לשם השדה המדויק מה-API שלך
+            trend="סה''כ שיחות נכנסות" 
+            icon={<Phone size={28} />} 
+            color="blue" 
+          />          <StatCard 
             title="ציון גובה טון" 
             value={Number(latestStats?.operatorToneScore || "0").toFixed(2)} 
             trend={latestStats?.operatorToneScore > 80 ? "עומד ביעד" : "טעון שיפור"} 
@@ -125,8 +134,8 @@ const performanceData = React.useMemo(() => {
             title="ממוצע כללי" 
             value={`${Number(latestStats?.overallScore || 0).toFixed(2)}%`}
             trend="על סמך שיחות אחרונות" 
-            icon={<Smile size={28} />} 
-            color="amber" 
+            icon={<Percent size={28} />} 
+            color="Teal" 
           />
         </div>
 
@@ -240,7 +249,9 @@ const StatCard = ({ title, value, trend, icon, color }) => {
   const colorMap = {
     indigo: { text: '#4f46e5', bg: '#eef2ff' },
     emerald: { text: '#059669', bg: '#ecfdf5' },
-    amber: { text: '#d97706', bg: '#fffbeb' }
+    amber: { text: '#d97706', bg: '#fffbeb' },
+    blue: { text: '#2563eb', bg: '#eff6ff' }, // צבע כחול חדש
+    Teal:{ text: '#C026D3', bg: '#f9f2fa' }
   };
 
   return (

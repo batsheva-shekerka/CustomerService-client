@@ -64,7 +64,7 @@ MonthlyScoreGraf: builder.query({
 }),
  weeklyScore: builder.query({
   // יוצאים מ-score ונכנסים ל-operator
-  query: (id) => `../operator/GetAverageDayScore/${id}`, 
+  query: (id) => `../operator/GetWeeklyImprovement/${id}`, 
   providesTags: ['Score'],
 }), 
 Daylyimprovetips: builder.query({

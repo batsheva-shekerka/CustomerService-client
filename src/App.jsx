@@ -19,13 +19,13 @@ function App() {
   return (
     <Router>
     <div className="min-h-screen bg-slate-50">
-        <h1>מערכת ניהול שירות לקוחות</h1>
+        {/* <h1>מערכת ניהול שירות לקוחות</h1> */}
         
-        <nav style={{ marginBottom: '20px' }}>
+        {/* <nav style={{ marginBottom: '20px' }}> */}
           {/* <Link to="/login" style={{ marginLeft: '10px' }}>התחברות</Link> */}
-        </nav>
+        {/* </nav> */}
 
-        <hr />
+        {/* <hr /> */}
 
         <Routes>
           {/* עכשיו כל הנתיבים פתוחים - בלי ProtectedRoute שגורם לקריסה */}
