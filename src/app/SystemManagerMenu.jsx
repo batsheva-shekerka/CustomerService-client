@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { LogIn, LogOut, Users, Building2, ShieldAlert } from 'lucide-react';
 
-const AdminMenu = () => {
+const SystemManagerMenu = () => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
@@ -40,9 +40,9 @@ const AdminMenu = () => {
           <span>ניהול מפעילים</span>
         </Link>
         
-        <Link to="/CompanyInManager" style={linkStyle("/companies")}>
+        <Link to="/companies" style={linkStyle("/companies")}>
           <Building2 size={18} />
-          <span>ניהול פרטי חברה</span>
+          <span>ניהול חברות</span>
         </Link>
 
         <div style={{ margin: '16px 12px', borderTop: '1px solid #334155', paddingTop: '16px' }}></div>
@@ -65,4 +65,4 @@ const AdminMenu = () => {
   );
 };
 
-export default AdminMenu;
+export default SystemManagerMenu;

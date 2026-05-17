@@ -38,18 +38,42 @@ const AgentDashboard = ({ operatorId: propId, name: propName }) => {
   // 1. עיבוד הנתונים לגרף
   // בהנחה ש-rawData הוא מערך של אובייקטים המכילים יום וציון
   // עדכון עיבוד הנתונים לגרף השבועי
+
+  const daiesTranslations = {
+  0: "יום ראשון",
+  1: "יום שני",
+  2: "יום שלישי",
+  3: "יום רביעי",
+  4: "יום חמישי",
+  5: "יום שישי",
+  6: "שבת"
+};
 const performanceData = React.useMemo(() => {
   if (!weeklyData || !Array.isArray(weeklyData)) return [];
 
-  return weeklyData.map(item => ({
-    // אם אין שם יום, נשתמש בתאריך או אינדקס
-    day: item.dayName || item.key || "יום", 
-    // שימוש בשם השדה המדויק שמופיע ב-Console ב-"image_a03efe.jpg"
-    score: Number(item.overallScore).toFixed(2),
-    operatorToneScore:Number(item.operatorToneScore).toFixed(2) ,
-    conflictResolutionScore:Number(item.conflictResolutionScore).toFixed(2) ,
-    professionalismScore:Number(item.professionalismScore).toFixed(2) 
-  }));
+  // נהפוך את המערך כדי שהימים יוצגו משמאל לימין (מהישן לחדש)
+  return [...weeklyData].reverse().map((item, index) => {
+    // חילוץ יום בטוח: קודם לפי DayName מהשרת, אם לא קיים - נשתמש באינדקס זמני
+    const dayValue = item.dayName !== undefined && item.dayName !== null ? item.dayName : index;
+    
+    return {
+      day: daiesTranslations[dayValue] || `יום ${dayValue}`, 
+      score: item.overallScore ? Number(item.overallScore).toFixed(2) : 0,
+      operatorToneScore: item.operatorToneScore ? Number(item.operatorToneScore).toFixed(2) : 0,
+      conflictResolutionScore: item.conflictResolutionScore ? Number(item.conflictResolutionScore).toFixed(2) : 0,
+      professionalismScore: item.professionalismScore ? Number(item.professionalismScore).toFixed(2) : 0 
+    };
+  });
+}, [weeklyData]);
+const totalWeeklyCalls = React.useMemo(() => {
+  if (!weeklyData || !Array.isArray(weeklyData)) return 0;
+  
+  return weeklyData.reduce((sum, item) => {
+    // חילוץ מספר השיחות, המרה למספר (למקרה שהערך מגיע כמחרוזת) ובדיקה שהערך תקין
+    const calls = item.sumDailyCalls
+ ? Number(item.sumDailyCalls) : 0;
+    return sum + (isNaN(calls) ? 0 : calls);
+  }, 0);
 }, [weeklyData]);
   // 2. חילוץ נתונים לכרטיסים (מתוך האיבר האחרון או שדות ייעודיים)
   const latestStats = React.useMemo(() => {
@@ -82,6 +106,7 @@ const performanceData = React.useMemo(() => {
 
     // הוסיפי כאן את כל ערכי ה-Enum שלך
 };
+
    console.log("num of calls",latestStats?.sumDailyCalls)
   return (
     <div className="dashboard-page" dir="rtl">
@@ -144,10 +169,21 @@ const performanceData = React.useMemo(() => {
           
           {/* Chart Card */}
           <div className="chart-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1E293B', margin: 0 }}>מגמת שיפור שבועית</h3>
-              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#6366f1', backgroundColor: '#EEF2FF', padding: '0.25rem 0.75rem', borderRadius: '999px' }}>נתוני אמת</span>
-            </div>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+  <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1E293B', margin: 0 }}>
+    מגמת שיפור שבועית
+  </h3>
+  
+  {/* קונטיינר חדש שמצמיד את שתי התוויות יחד עם מרווח קטן של 0.5rem (כ-8 פיקסלים) */}
+  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#6366f1', backgroundColor: '#EEF2FF', padding: '0.25rem 0.75rem', borderRadius: '999px' }}>
+      נתוני אמת
+    </span>
+    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#6366f1', backgroundColor: '#EEF2FF', padding: '0.25rem 0.75rem', borderRadius: '999px' }}>
+      סך השיחות השבוע: {totalWeeklyCalls}
+    </span>
+  </div>
+</div>
             <div style={{ height: '18rem', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 {/* <AreaChart data={performanceData}>

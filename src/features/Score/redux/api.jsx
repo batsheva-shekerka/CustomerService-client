@@ -69,7 +69,7 @@ MonthlyScoreGraf: builder.query({
 }), 
 Daylyimprovetips: builder.query({
   // יוצאים מ-score ונכנסים ל-operator
-  query: (id) => `../operator/GetWeeklyImprovement/${id}`, 
+  query: (id) => `../operator/GetDalyImprovementTips/${id}`, 
   providesTags: ['Score'],
 }), 
     // // 5.שליפת ציון לפי שיחה

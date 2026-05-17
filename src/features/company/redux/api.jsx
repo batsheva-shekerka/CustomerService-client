@@ -14,7 +14,10 @@ export const companyApi = createApi({
       query: () => '', 
       providesTags: ['Company'], // הקריאה הזו "מספקת" נתוני מפעילים
     }),
-
+    getByIdCompany: builder.query({
+      query: (id) => `${id}`, 
+      providesTags: ['Company'], // הקריאה הזו "מספקת" נתוני מפעילים
+    }),
     // 2. הוספת מפעיל חדש
     addCompany: builder.mutation({
       query: (newCompany) => ({
@@ -71,5 +74,6 @@ export const {
   useUpdateCompanyMutation, 
   useGetCompanyCallsQuery,
   useGetDailyImprovementQuery,
-  useGetWeeklyImprovementQuery
+  useGetWeeklyImprovementQuery,
+  useGetByIdCompanyQuery
 } = companyApi;

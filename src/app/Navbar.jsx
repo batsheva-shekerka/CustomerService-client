@@ -1,5 +1,6 @@
 import OperatorMenu from "./OperatorMenu";
 import AdminMenu from "./AdminMenu";
+import SystemManagerMenu from "./SystemManagerMenu";
 import { jwtDecode } from "jwt-decode";
 
 
@@ -12,7 +13,7 @@ const  Navbar = () => {
   console.log("userrole",role)
   return (
     <nav>
-      {role === 'Operator' ? <OperatorMenu /> : <AdminMenu />}
+      {role === 'Operator' ? <OperatorMenu /> :role === 'Admin' ? <AdminMenu />:<SystemManagerMenu />}
     </nav>
   );
 };export default Navbar;
